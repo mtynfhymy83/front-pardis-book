@@ -4,9 +4,15 @@ type BookCoverProps = {
   color: string
   accent: string
   compact?: boolean
+  imageUrl?: string
+  imageAlt?: string
 }
 
-export function BookCover({ title, eyebrow = 'ENGLISH COURSE', color, accent, compact = false }: BookCoverProps) {
+export function BookCover({ title, eyebrow = 'ENGLISH COURSE', color, accent, compact = false, imageUrl, imageAlt }: BookCoverProps) {
+  if (imageUrl) {
+    return <img className={`book-cover-image ${compact ? 'book-cover-image--compact' : ''}`} src={imageUrl} alt={imageAlt || `جلد ${title}`} loading="lazy" />
+  }
+
   const words = title.split(' ')
   const leading = words.slice(0, -1).join(' ') || words[0]
   const ending = words.length > 1 ? words[words.length - 1] : ''
