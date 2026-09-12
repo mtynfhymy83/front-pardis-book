@@ -111,7 +111,7 @@ function App() {
     }
   }, [query, focusedSearch])
 
-  const hero = home?.hero || defaultHero
+  const hero: HomeContent['hero'] = home?.hero || defaultHero
   const heroTitle = hero.title || defaultHero.title
   const titleParts = heroTitle.split('،')
   const products = useMemo(() => home?.fastDispatch || [], [home])
