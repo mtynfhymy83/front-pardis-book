@@ -68,3 +68,18 @@ jobs:
             VITE_API_URL=${{ vars.VITE_API_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Smoke test published image
+        shell: bash
+        run: |
+          image="${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7}"
+          docker pull "$image"
+          container=$(docker run --rm -d -p 127.0.0.1:8080:80 "$image")
+          trap 'docker logs "$container"; docker stop "$container" >/dev/null' EXIT
+          for attempt in {1..10}; do
+            if curl --fail --silent http://127.0.0.1:8080/health | grep --quiet '^ok$'; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
