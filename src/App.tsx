@@ -25,12 +25,12 @@ import { Brand } from './components/Brand'
 import { BookCover } from './components/BookCover'
 import { ProductCard } from './components/ProductCard'
 
-const defaultHero: HomeContent['hero'] = {
+const defaultHero = {
   eyebrow: 'انتخاب حرفه‌ای آموزشگاه‌ها و کتاب‌فروشی‌ها',
   title: 'کتاب‌های آموزش زبان، با قیمت عمده شفاف',
   description: 'مجموعه‌های اصلی و پرفروش آموزش زبان را با موجودی به‌روز، تخفیف پلکانی و ارسال سریع تهیه کنید.',
   stats: [] as Array<{ value: string; label: string }>,
-}
+} satisfies HomeContent['hero']
 
 const benefitIcons = [Truck, ShoppingBag, ShieldCheck, Headphones]
 const seriesPalettes = [
