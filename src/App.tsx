@@ -3,27 +3,24 @@ import {
   ArrowLeft,
   BadgeCheck,
   BookOpen,
-  ChevronDown,
   Headphones,
-  Home,
-  Menu,
   PackageCheck,
   Phone,
   Search,
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
-  Sparkles,
   Store,
   Truck,
-  UserRound,
-  X,
 } from 'lucide-react'
 import { api, ApiError } from './services/api'
 import type { BookSeries, HomeContent, Navigation, ProductSummary, SearchSuggestion } from './types/catalog'
-import { Brand } from './components/Brand'
 import { BookCover } from './components/BookCover'
 import { ProductCard } from './components/ProductCard'
+import { SiteShell } from './components/layout/SiteShell'
+import { ButtonLink } from './components/ui/Button'
+import { useNavigate } from 'react-router-dom'
+import { routes, routeTo } from './app/routes'
 
 const defaultHero = {
   eyebrow: 'انتخاب حرفه‌ای آموزشگاه‌ها و کتاب‌فروشی‌ها',
@@ -40,17 +37,8 @@ const seriesPalettes = [
   ['#ff7b70', '#1a3551'],
 ]
 
-function sectionHref(label: string, href: string) {
-  if (label.includes('مجموعه')) return '#series'
-  if (label.includes('ارسال') || label.includes('فروش')) return '#fast-delivery'
-  if (label.includes('عمده')) return '#wholesale'
-  if (label.includes('درباره')) return '#about'
-  if (label.includes('تماس')) return '#contact'
-  return href
-}
-
 function App() {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
   const [home, setHome] = useState<HomeContent | null>(null)
   const [navigation, setNavigation] = useState<Navigation | null>(null)
   const [currency, setCurrency] = useState('تومان')
@@ -124,7 +112,7 @@ function App() {
       setNotice('نام کتاب یا مجموعه را وارد کنید.')
       return
     }
-    setNotice(suggestions.length ? `${new Intl.NumberFormat('fa-IR').format(suggestions.length)} پیشنهاد برای «${normalized}» پیدا شد.` : `نتیجه‌ای برای «${normalized}» پیدا نشد.`)
+    navigate(routeTo.catalogSearch(normalized))
   }
 
   const handleQueryChange = (value: string) => {
@@ -167,56 +155,24 @@ function App() {
   )
 
   return (
-    <div className="app" id="top">
-      <div className="topbar">
-        <div className="container topbar__inner">
-          <p><Sparkles size={14} /> ارسال رایگان سفارش‌های بالای ۸ میلیون تومان</p>
-          <a href={`tel:${phone}`}><Phone size={14} /> مشاوره خرید عمده: {phone}</a>
-        </div>
-      </div>
-
-      <header className="header">
-        <div className="container header__main">
-          <button className="mobile-menu" type="button" onClick={() => setMenuOpen(true)} aria-label="باز کردن منو"><Menu /></button>
-          <Brand />
-
-          <form className="header-search" onSubmit={handleSearch} role="search">
-            <Search size={20} />
-            <input value={query} onChange={(event) => handleQueryChange(event.target.value)} onFocus={() => setFocusedSearch('header')} onBlur={() => window.setTimeout(() => setFocusedSearch(null), 150)} placeholder="جست‌وجوی نام کتاب، مجموعه یا سطح..." aria-label="جست‌وجوی کتاب" />
-            <button type="submit">جست‌وجو</button>
-            {renderSuggestions('header')}
-          </form>
-
-          <div className="header-actions">
-            <button type="button" className="header-action"><UserRound size={21} /><span>ورود / ثبت‌نام</span></button>
-            <button type="button" className="cart-button" aria-label={`سبد خرید، ${cartCount} جلد`}><ShoppingCart size={22} /><span className="cart-button__label">سبد خرید</span><b>{new Intl.NumberFormat('fa-IR').format(cartCount)}</b></button>
-          </div>
-        </div>
-
-        <nav className="main-nav" aria-label="منوی اصلی">
-          <div className="container main-nav__inner">
-            <div className="nav-category-wrap">
-              <a className="nav-category" href="#series"><Menu size={18} /> دسته‌بندی کتاب‌ها <ChevronDown size={15} /></a>
-              {navigation && navigation.categories.length > 0 && (
-                <div className="category-menu">
-                  {navigation.categories.map((category) => <a key={category.id} href={`#category-${category.slug}`}>{category.name}<small>{new Intl.NumberFormat('fa-IR').format(category.productCount)} عنوان</small></a>)}
-                </div>
-              )}
-            </div>
-            {(navigation?.links || []).map((link) => <a key={link.label} href={sectionHref(link.label, link.href)}>{link.label}</a>)}
-            <span className="nav-spacer" />
-          </div>
-        </nav>
-      </header>
-
-      <div className={`drawer-overlay ${menuOpen ? 'is-open' : ''}`} onClick={() => setMenuOpen(false)} />
-      <aside className={`mobile-drawer ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
-        <div className="mobile-drawer__head"><Brand /><button type="button" onClick={() => setMenuOpen(false)} aria-label="بستن منو"><X /></button></div>
-        {navigation?.categories.map((category) => <a key={category.id} href={`#category-${category.slug}`} onClick={() => setMenuOpen(false)}>{category.name}</a>)}
-        {navigation?.links.map((link) => <a key={link.label} href={sectionHref(link.label, link.href)} onClick={() => setMenuOpen(false)}>{link.label}</a>)}
-      </aside>
-
-      <main>
+    <SiteShell
+      navigation={navigation}
+      phone={phone}
+      currency={currency}
+      cartCount={cartCount}
+      notice={notice}
+      onDismissNotice={() => setNotice('')}
+      onAccountAction={() => setNotice('ورود و حساب کاربری در فاز چهارم فعال می‌شود.')}
+      onCartAction={() => setNotice('صفحه سبد خرید در فاز چهارم فعال می‌شود.')}
+      headerSearch={(
+        <form className="header-search" onSubmit={handleSearch} role="search">
+          <Search size={20} />
+          <input value={query} onChange={(event) => handleQueryChange(event.target.value)} onFocus={() => setFocusedSearch('header')} onBlur={() => window.setTimeout(() => setFocusedSearch(null), 150)} placeholder="جست‌وجوی نام کتاب، مجموعه یا سطح..." aria-label="جست‌وجوی کتاب" />
+          <button type="submit">جست‌وجو</button>
+          {renderSuggestions('header')}
+        </form>
+      )}
+    >
         {loadError && <div className="api-error" role="alert">{loadError}</div>}
         <section className="hero">
           <div className="container hero__grid">
@@ -225,7 +181,7 @@ function App() {
               <h1>{titleParts[0]}{titleParts.length > 1 && <><br /><em>{titleParts.slice(1).join('،')}</em></>}</h1>
               <p>{hero.description || defaultHero.description}</p>
 
-              <form className="hero-search" onSubmit={handleSearch} role="search">
+              <form className="hero-search" id="hero-search" onSubmit={handleSearch} role="search">
                 <Search size={21} />
                 <input value={query} onChange={(event) => handleQueryChange(event.target.value)} onFocus={() => setFocusedSearch('hero')} onBlur={() => window.setTimeout(() => setFocusedSearch(null), 150)} placeholder="مثلاً Family and Friends 3" aria-label="نام کتاب مورد نظر" />
                 <button type="submit">پیدا کردن کتاب</button>
@@ -233,8 +189,8 @@ function App() {
               </form>
 
               <div className="hero__actions">
-                <a className="button button--primary" href="#series">{hero.primaryAction?.label || 'مشاهده مجموعه‌ها'} <ArrowLeft size={18} /></a>
-                <a className="button button--ghost" href="#wholesale">{hero.secondaryAction?.label || 'راهنمای خرید عمده'}</a>
+                <ButtonLink href={routes.seriesIndex}>{hero.primaryAction?.label || 'مشاهده مجموعه‌ها'} <ArrowLeft size={18} /></ButtonLink>
+                <ButtonLink variant="ghost" href={routes.wholesaleGuide}>{hero.secondaryAction?.label || 'راهنمای خرید عمده'}</ButtonLink>
               </div>
 
               <div className="hero__proof">
@@ -265,7 +221,7 @@ function App() {
         </section>
 
         <section className="section container" id="series">
-          <div className="section-heading"><div><span className="section-kicker">انتخاب بر اساس مجموعه</span><h2>مجموعه‌های محبوب آموزش زبان</h2></div><a href="#all-series">مشاهده همه مجموعه‌ها <ArrowLeft size={17} /></a></div>
+          <div className="section-heading"><div><span className="section-kicker">انتخاب بر اساس مجموعه</span><h2>مجموعه‌های محبوب آموزش زبان</h2></div><a href={routes.seriesIndex}>مشاهده همه مجموعه‌ها <ArrowLeft size={17} /></a></div>
           <div className="series-grid">
             {(home?.featuredSeries || []).map((series: BookSeries, index) => {
               const [color, accent] = seriesPalettes[index % seriesPalettes.length]
@@ -276,7 +232,7 @@ function App() {
                     <span>{series.levels.length ? series.levels.join('، ') : `${new Intl.NumberFormat('fa-IR').format(series.productCount)} عنوان`}</span>
                     <h3>{series.name}</h3>
                     <p>{new Intl.NumberFormat('fa-IR').format(series.productCount)} کتاب منتشرشده در این مجموعه</p>
-                    <a href={`#series-${series.slug}`}>مشاهده کتاب‌ها <ArrowLeft size={16} /></a>
+                    <a href={routeTo.search(series.name)}>جست‌وجوی کتاب‌ها <ArrowLeft size={16} /></a>
                   </div>
                 </article>
               )
@@ -287,7 +243,7 @@ function App() {
 
         <section className="wholesale" id="wholesale">
           <div className="container wholesale__grid">
-            <div className="wholesale__copy"><span className="section-kicker section-kicker--light">قیمت‌گذاری شفاف</span><h2>بیشتر سفارش بدهید، کمتر پرداخت کنید.</h2><p>تخفیف هر محصول بر اساس تعداد، همان لحظه در سبد خرید محاسبه می‌شود؛ بدون تماس تلفنی و انتظار برای استعلام.</p><a className="button button--white" href="#fast-delivery">شروع خرید عمده <ArrowLeft size={18} /></a></div>
+            <div className="wholesale__copy"><span className="section-kicker section-kicker--light">قیمت‌گذاری شفاف</span><h2>بیشتر سفارش بدهید، کمتر پرداخت کنید.</h2><p>تخفیف هر محصول بر اساس تعداد، همان لحظه در سبد خرید محاسبه می‌شود؛ بدون تماس تلفنی و انتظار برای استعلام.</p><ButtonLink variant="white" href={routes.wholesaleGuide}>راهنمای خرید عمده <ArrowLeft size={18} /></ButtonLink></div>
             <div className="price-tiers"><div className="price-tier"><span>سفارش پایه</span><strong>۵ تا ۱۹ جلد</strong><b>٪۵ تخفیف</b></div><div className="price-tier price-tier--active"><span>انتخاب محبوب</span><strong>۲۰ تا ۴۹ جلد</strong><b>٪۱۲ تخفیف</b></div><div className="price-tier"><span>همکار ویژه</span><strong>۵۰ جلد به بالا</strong><b>٪۱۸ تخفیف</b></div></div>
           </div>
         </section>
@@ -295,13 +251,13 @@ function App() {
         {home && home.bestSelling.length > 0 && (
           <section className="section container" id="best-selling">
             <div className="section-heading"><div><span className="section-kicker">انتخاب مشتریان</span><h2>پرفروش‌ترین کتاب‌ها</h2></div></div>
-            <div className="products-grid">{home.bestSelling.slice(0, 4).map((product) => <ProductCard product={product} onAdd={handleAdd} adding={addingSku === product.defaultSku?.id} key={product.id} />)}</div>
+            <div className="products-grid">{home.bestSelling.slice(0, 4).map((product) => <ProductCard product={product} href={routeTo.product(product.slug)} onAdd={handleAdd} adding={addingSku === product.defaultSku?.id} key={product.id} />)}</div>
           </section>
         )}
 
         <section className="section container" id="fast-delivery">
           <div className="section-heading"><div><span className="section-kicker">برای سفارش‌های فوری</span><h2>کتاب‌های آماده ارسال</h2></div><a href="#all-products">مشاهده همه کتاب‌ها <ArrowLeft size={17} /></a></div>
-          <div className="products-grid">{products.slice(0, 4).map((product) => <ProductCard product={product} onAdd={handleAdd} adding={addingSku === product.defaultSku?.id} key={product.id} />)}</div>
+          <div className="products-grid">{products.slice(0, 4).map((product) => <ProductCard product={product} href={routeTo.product(product.slug)} onAdd={handleAdd} adding={addingSku === product.defaultSku?.id} key={product.id} />)}</div>
           {!loading && products.length === 0 && <div className="empty-state">در حال حاضر محصول آماده ارسالی وجود ندارد.</div>}
         </section>
 
@@ -319,28 +275,9 @@ function App() {
 
         <section className="container cta" id="contact">
           <div><span className="cta__icon"><Store /></span><div><h2>{home?.contact.title || 'برای خرید سازمانی نیاز به مشاوره دارید؟'}</h2><p>{home?.contact.description || 'کارشناسان پردیس برای انتخاب کتاب و ثبت سفارش کنار شما هستند.'}</p></div></div>
-          <a className="button button--primary" href={`tel:${phone}`}><Phone size={18} /> تماس با واحد فروش</a>
+          <ButtonLink href={`tel:${phone}`}><Phone size={18} /> تماس با واحد فروش</ButtonLink>
         </section>
-      </main>
-
-      <footer className="footer" id="about">
-        <div className="container footer__grid">
-          <div className="footer__about"><Brand light /><p>تأمین تخصصی و عمده کتاب‌های آموزش زبان برای آموزشگاه‌ها، مدارس و کتاب‌فروشی‌ها.</p></div>
-          <div><h3>دسترسی سریع</h3><a href="#series">مجموعه‌ها</a><a href="#wholesale">خرید عمده</a><a href="#fast-delivery">فروش ویژه</a></div>
-          <div><h3>خدمات مشتریان</h3><a href="#guide">راهنمای ثبت سفارش</a><a href="#shipping">روش‌های ارسال</a><a href="#returns">شرایط بازگشت</a></div>
-          <div><h3>ارتباط با پردیس</h3><a href={`tel:${phone}`}>{phone}</a><a href="mailto:sales@pardisbook.ir">sales@pardisbook.ir</a><span>شنبه تا پنجشنبه، ۹ تا ۱۸</span></div>
-        </div>
-        <div className="container footer__bottom"><span>© ۱۴۰۵ کتابسرای پردیس؛ همه حقوق محفوظ است.</span><span>قیمت‌ها بر حسب {currency} • موجودی واقعی • ارسال سریع</span></div>
-      </footer>
-
-      <nav className="mobile-bottom-nav" aria-label="دسترسی سریع موبایل">
-        <a className="is-active" href="#top"><Home /><span>خانه</span></a><a href="#series"><BookOpen /><span>دسته‌بندی</span></a><a href="#fast-delivery"><Search /><span>جست‌وجو</span></a>
-        <button type="button"><span className="mobile-cart-wrap"><ShoppingCart /><b>{new Intl.NumberFormat('fa-IR').format(cartCount)}</b></span><span>سبد خرید</span></button>
-        <button type="button"><UserRound /><span>حساب من</span></button>
-      </nav>
-
-      {notice && <div className="toast" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="بستن پیام"><X size={17} /></button></div>}
-    </div>
+    </SiteShell>
   )
 }
 

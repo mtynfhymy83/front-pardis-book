@@ -6,6 +6,7 @@ type ProductCardProps = {
   product: ProductSummary
   onAdd: (product: ProductSummary) => Promise<void>
   adding?: boolean
+  href?: string
 }
 
 const formatPrice = (value: number) => new Intl.NumberFormat('fa-IR').format(value)
@@ -21,13 +22,13 @@ const palette = (id: string) => {
   return palettes[index]
 }
 
-export function ProductCard({ product, onAdd, adding = false }: ProductCardProps) {
+export function ProductCard({ product, onAdd, adding = false, href }: ProductCardProps) {
   const sku = product.defaultSku
   const [color, accent] = palette(product.id)
   const attributes = sku?.attributes || {}
   const variant = [attributes.level, attributes.bookType, attributes.edition].filter(Boolean).join(' — ') || product.subtitle || ''
   const hasDiscount = Boolean(sku && sku.referenceUnitPrice > sku.startingUnitPrice)
-  const canAdd = Boolean(sku && sku.availableQuantity >= sku.minimumQuantity)
+  const canAdd = Boolean(sku && sku.maximumPurchasableQuantity >= sku.minimumQuantity)
 
   return (
     <article className="product-card">
@@ -45,9 +46,9 @@ export function ProductCard({ product, onAdd, adding = false }: ProductCardProps
       </div>
       <div className="product-card__body">
         <span className="product-card__meta">{variant}</span>
-        <h3>{product.title}</h3>
+        <h3>{href ? <a href={href}>{product.title}</a> : product.title}</h3>
         <div className={`stock-line ${canAdd ? '' : 'stock-line--empty'}`}>
-          <Check size={14} /> {canAdd ? `موجود در انبار (${new Intl.NumberFormat('fa-IR').format(sku?.availableQuantity || 0)} جلد)` : 'ناموجود'}
+          <Check size={14} /> {canAdd ? `موجود در انبار (${new Intl.NumberFormat('fa-IR').format(sku?.maximumPurchasableQuantity || 0)} جلد)` : 'ناموجود'}
         </div>
         <div className="product-card__price">
           <div>

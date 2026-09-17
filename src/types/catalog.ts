@@ -17,10 +17,44 @@ export type ProductSummary = {
     minimumQuantity: number
     startingUnitPrice: number
     referenceUnitPrice: number
-    availableQuantity: number
+    maximumPurchasableQuantity: number
     availability: string
     fastDispatch: boolean
   } | null
+}
+
+export type PricingTier = {
+  minQuantity: number
+  maxQuantity: number | null
+  unitPrice: number
+}
+
+export type ProductSku = {
+  id: string
+  code: string
+  isbn: string | null
+  attributes: Record<string, string>
+  minimumQuantity: number
+  referenceUnitPrice: number
+  fastDispatch: boolean
+  status: string
+  pricingVersion: string
+  isDefault: boolean
+  availableQuantity: number
+  pricingTiers: PricingTier[]
+}
+
+export type ProductDetail = {
+  id: string
+  slug: string
+  title: string
+  subtitle: string | null
+  description: string | null
+  series: { id: string; name: string } | null
+  publisher: { id: string; name: string } | null
+  category: { id: string; name: string } | null
+  media: Array<Cover & { id: string; isPrimary: boolean; sortOrder: number }>
+  skus: ProductSku[]
 }
 
 export type BookSeries = {
@@ -70,12 +104,33 @@ export type SearchSuggestion = {
   subtitle: string
 }
 
-export type Cart = {
+export type CatalogFacet = {
+  type: 'series' | 'publisher' | 'category' | 'ageGroup' | 'level' | 'edition' | 'bookType' | string
   id: string
-  version: number
-  summary: {
-    lineCount: number
-    totalQuantity: number
-    payable: number
-  }
+  label: string
+  count: number
+}
+
+export type PricingQuote = {
+  skuId: string
+  quantity: number
+  minimumQuantity: number
+  selectedTier: { min: number; max: number | null; unitPrice: number }
+  unitPrice: number
+  referenceUnitPrice: number
+  lineSubtotal: number
+  lineSaving: number
+  maximumPurchasableQuantity: number
+  canPurchase: boolean
+  pricingVersion: string
+}
+
+export type SkuPricing = {
+  skuId: string
+  minimumQuantity: number
+  referenceUnitPrice: number
+  availability: string
+  maximumPurchasableQuantity: number
+  pricingVersion: string
+  tiers: PricingTier[]
 }

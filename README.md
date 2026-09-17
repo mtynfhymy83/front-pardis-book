@@ -2,6 +2,8 @@
 
 صفحه Home فروشگاه عمده کتاب‌های آموزش زبان، ساخته‌شده با React، TypeScript و Vite.
 
+زیرساخت فاز صفر شامل React Router، TanStack Query، API Client ماژولار، تمدید نشست، سبد مهمان نسخه‌دار و Idempotency سفارش/پرداخت است. جزئیات تصمیم‌ها و Gapهای API در [`docs/phase-0-foundation.fa.md`](docs/phase-0-foundation.fa.md) ثبت شده است.
+
 ## اجرا
 
 ```bash
@@ -13,6 +15,7 @@ npm run dev
 
 ```bash
 npm run lint
+npm run typecheck
 npm run build
 ```
 

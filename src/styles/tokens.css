@@ -1,0 +1,43 @@
+:root {
+  --font-sans: 'Vazirmatn', Tahoma, Arial, sans-serif;
+
+  --color-brand-navy: #102a43;
+  --color-brand-navy-strong: #0b2034;
+  --color-primary: #1261ff;
+  --color-primary-strong: #0c54cb;
+  --color-primary-soft: #eaf1ff;
+  --color-surface: #ffffff;
+  --color-canvas: #f5f8fc;
+  --color-sky: #f4f8ff;
+  --color-text: #132238;
+  --color-text-muted: #607086;
+  --color-border: #dde6f0;
+  --color-accent: #ffc928;
+  --color-success: #168a5b;
+  --color-danger: #b6374a;
+
+  --navy: var(--color-brand-navy);
+  --navy-2: #173f67;
+  --blue: var(--color-primary);
+  --blue-dark: var(--color-primary-strong);
+  --blue-soft: var(--color-primary-soft);
+  --sky: var(--color-sky);
+  --yellow: var(--color-accent);
+  --green: var(--color-success);
+  --ink-soft: var(--color-text-muted);
+  --line: var(--color-border);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --shadow-sm: 0 8px 20px rgba(16, 42, 67, .08);
+  --shadow: 0 18px 45px rgba(16, 42, 67, .1);
+  --shadow-lg: 0 24px 60px rgba(16, 42, 67, .16);
+
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-surface);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
